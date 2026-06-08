@@ -1,0 +1,87 @@
+name: Deploy API to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - 'changelogs/**'
+      - '.github/workflows/release-api.yml'
+  release:
+    types: [published, created]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Validate JSON files
+        run: |
+          python -m json.tool api/modpacks.json > /dev/null && echo "✓ modpacks.json is valid"
+          python -m json.tool api/launcher.json > /dev/null && echo "✓ launcher.json is valid"
+          python -m json.tool api/news.json > /dev/null && echo "✓ news.json is valid"
+          python -m json.tool api/featured.json > /dev/null && echo "✓ featured.json is valid"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  validate-release:
+    name: Validate Release Tag Format
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check release tag
+        run: |
+          TAG="${{ github.ref }}"
+          if [[ "$TAG" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "✓ Release tag format is valid: $TAG"
+          else
+            echo "⚠ Release tag should follow v*.*.* format (e.g., v1.0.0)"
+          fi
+
+      - name: Comment on release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number || context.payload.release.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ API files deployed to GitHub Pages\n\nAccess your modpacks at:\nhttps://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/api/modpacks.json'
+            })

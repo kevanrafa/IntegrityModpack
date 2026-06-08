@@ -1,0 +1,16 @@
+{
+  "api_version": 1,
+  "modpacks": [
+    {
+      "id": "integrity",
+      "name": "Integrity",
+      "version": "1.0.0",
+      "minecraft": "1.21.1",
+      "loader": "fabric",
+      "description": "Official Integrity Modpack",
+      "icon": "https://raw.githubusercontent.com/kevanrafa/Integrity-Modpack/main/icons/integrity.png",
+      "download": "https://github.com/kevanrafa/Integrity-Modpack/releases/download/v1.0.0/integrity.mrpack",
+      "changelog": "https://raw.githubusercontent.com/kevanrafa/Integrity-Modpack/main/changelogs/integrity-1.0.0.md"
+    }
+  ]
+}

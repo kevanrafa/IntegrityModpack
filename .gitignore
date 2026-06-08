@@ -1,0 +1,40 @@
+# Git ignore file for Integrity Modpack
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Modpack files (store in releases, not repo)
+*.mrpack
+*.zip
+
+# Temporary files
+*.tmp
+*.bak
+temp/
+
+# Local test files
+test_*.py
+debug.log
